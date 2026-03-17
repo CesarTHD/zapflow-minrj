@@ -18,10 +18,10 @@ const navItems = [
   // { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   // { title: "Contacts", icon: Users, path: "/contacts" },
   // { title: "Segmentation", icon: Filter, path: "/segmentation" },
-  { title: "Campaigns", icon: Send, path: "/campaigns" },
+  { title: "Campanhas", icon: Send, path: "/campaigns" },
   // { title: "Automations", icon: Zap, path: "/automations" },
-  { title: "History", icon: History, path: "/history" },
-  { title: "Settings", icon: Settings, path: "/settings" },
+  { title: "Histórico", icon: History, path: "/history" },
+  { title: "Configurações", icon: Settings, path: "/settings" },
 ];
 
 export function AppSidebar() {

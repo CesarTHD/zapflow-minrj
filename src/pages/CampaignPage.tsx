@@ -1,9 +1,10 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useState } from "react";
-import { Check, ChevronRight, MessageSquare, Send, Users } from "lucide-react";
+import { Check, ChevronRight, Contact, Key, MessageSquare, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SegmentationBuilder, FilterRow } from "@/components/SegmentationBuilder";
+import { set } from "date-fns";
 
 const segments = [
   { name: "Inactive 60+ days", count: 347 },
@@ -13,57 +14,100 @@ const segments = [
   { name: "Last purchase < 30 days", count: 542 },
 ];
 
-const variables = ["{{name}}", "{{last_purchase}}", "{{birthday}}", "{{city}}", "{{total_purchases}}"];
+// const variables = ["{{nome}}", "{{ultima_compra}}", "{{data_nascimento}}", "{{city}}", "{{total_purchases}}"];
 
 const CampaignPage = () => {
   const [step, setStep] = useState(1);
   const [selectedSegment, setSelectedSegment] = useState("");
   const [message, setMessage] = useState(
-    "Olá {{name}}! 👋\n\nNotamos que já faz um tempo desde sua última visita. Sentimos sua falta!\n\nVolte e aproveite 15% de desconto na sua próxima compra. Válido somente esta semana!\n\nAté breve! 🎉"
+    "Olá {{NOME}}! 👋\n\nNotamos que já faz um tempo desde sua última visita. Sentimos sua falta!\n\nVolte e aproveite 15% de desconto na sua próxima compra. Válido somente esta semana!\n\nAté breve! 🎉"
   );
-
+  const [variables, setVariables] = useState([]);
   const [filters, setFilters] = useState<FilterRow[]>([
     // { id: 1, field: "last_purchase", condition: "gt", value: "10" },
   ]);
-
-const loadSegmentData = async () => {
-  if (!filters.length) {
-    console.log("Nenhum filtro definido");
-    return;
-  }
-
-  console.log("Filters:", filters);
+  const [clients, setClients] = useState([]);
 
 
-  try {
-    const res = await fetch("http://localhost:3333/segments/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filters })
-    });
-
-    if (!res.ok) {
-      throw new Error("Erro ao buscar preview do segmento");
+  const loadSegmentData = async () => {
+    if (!filters.length) {
+      console.log("Nenhum filtro definido");
+      return;
     }
 
-    const data = await res.json();
-    console.log("Segment data:", data);
+    console.log("Filters:", filters);
 
-    setStep(2); // avançar para próximo step
 
-  } catch (error) {
-    console.error("Error loading segment data:", error);
-  }
-};
+    try {
+      const res = await fetch("http://localhost:3333/segments/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filters })
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao buscar preview do segmento");
+      }
+
+      const data = await res.json();
+
+      const keys = Object.keys(data.data[0])
+        .filter(col => col !== "CODIGO_CADASTRO_GERAL" && col !== "TEL_CELULAR")
+        .map(col => `{{${col}}}`);
+
+      setVariables((prev) => {
+        const unique = new Set([...prev, ...keys]);
+        return [...unique];
+      });
+
+      setClients(data.data);
+
+      console.log("Segment data:", data);
+
+      setStep(2); // avançar para próximo step
+
+    } catch (error) {
+      console.error("Error loading segment data:", error);
+    }
+  };
+
+  const sendCampaign = async () => {
+    try {
+
+      const res = await fetch("http://localhost:3333/campaigns/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message,
+          contacts: [
+            {
+              NOME: "César Tallys",
+              CIDADE: "Curimatá",
+              TEL_CELULAR: "5561998374202"
+            }
+          ]
+          // contacts: clients
+        })
+      });
+
+      const data = await res.json();
+
+      console.log(data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const segmentData = segments.find((s) => s.name === selectedSegment);
 
   const previewMessage = message
-    .replace("{{name}}", "Maria")
-    .replace("{{last_purchase}}", "May 15, 2026")
-    .replace("{{birthday}}", "Jun 12")
-    .replace("{{city}}", "São Paulo")
-    .replace("{{total_purchases}}", "R$ 2,340");
+    .replace("{{NOME}}", "Maria")
+    .replace("{{ULTIMA_COMPRA}}", "May 15, 2026")
+    .replace("{{CIDADE}}", "São Paulo")
+    .replace("{{TOTAL_COMPRAS}}", "R$ 2,340");
 
   return (
     <AppLayout>
@@ -112,7 +156,7 @@ const loadSegmentData = async () => {
                 disabled={(!filters.length || filters[0].condition === "" || filters[0].field === "" || filters[0].value === "")}
                 className="gradient-primary text-primary-foreground hover:opacity-90"
               >
-                Next <ChevronRight className="w-4 h-4 ml-1" />
+                Próximo <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
           </div>
@@ -170,7 +214,7 @@ const loadSegmentData = async () => {
                 className="resize-none"
               />
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Insert variable:</p>
+                <p className="text-xs text-muted-foreground mb-2">Inserir variável:</p>
                 <div className="flex flex-wrap gap-2">
                   {variables.map((v) => (
                     <button
@@ -184,9 +228,9 @@ const loadSegmentData = async () => {
                 </div>
               </div>
               <div className="flex justify-between pt-2">
-                <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
+                <Button variant="outline" onClick={() => setStep(1)}>Voltar</Button>
                 <Button onClick={() => setStep(3)} className="gradient-primary text-primary-foreground hover:opacity-90">
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                  Próximo <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -198,7 +242,7 @@ const loadSegmentData = async () => {
                 <div className="bg-accent text-accent-foreground rounded-t-xl px-4 py-3 flex items-center gap-3">
                   <MessageSquare className="w-5 h-5" />
                   <div>
-                    <p className="text-sm font-semibold">{variables[0]}</p>
+                    <p className="text-sm font-semibold">Cliente</p>
                     <p className="text-xs opacity-80">online</p>
                   </div>
                 </div>
@@ -242,9 +286,9 @@ const loadSegmentData = async () => {
               <p className="text-sm whitespace-pre-line">{previewMessage}</p>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-              <Button className="gradient-whatsapp text-accent-foreground hover:opacity-90 flex items-center gap-2">
-                <Send className="w-4 h-4" /> Send Campaign
+              <Button variant="outline" onClick={() => setStep(2)}>Voltar</Button>
+              <Button onClick={sendCampaign} className="gradient-whatsapp text-accent-foreground hover:opacity-90 flex items-center gap-2">
+                <Send className="w-4 h-4" /> Enviar Campanha
               </Button>
             </div>
           </div>

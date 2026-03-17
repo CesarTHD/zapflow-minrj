@@ -7,7 +7,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex w-full bg-background">
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
+        {/* <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <Search className="w-4 h-4 text-muted-foreground" />
             <input
@@ -31,8 +31,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
           </div>
-        </header>
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        </header> */}
+        <main className="flex-1 overflow-auto p-6 mt-12">{children}</main>
       </div>
     </div>
   );
