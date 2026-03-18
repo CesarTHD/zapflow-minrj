@@ -18,10 +18,10 @@ const navItems = [
   // { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   // { title: "Contacts", icon: Users, path: "/contacts" },
   // { title: "Segmentation", icon: Filter, path: "/segmentation" },
-  { title: "Campanhas", icon: Send, path: "/campaigns" },
+  { title: "Campanhas", icon: Send, path: "/" },
   // { title: "Automations", icon: Zap, path: "/automations" },
   { title: "Histórico", icon: History, path: "/history" },
-  { title: "Configurações", icon: Settings, path: "/settings" },
+  // { title: "Configurações", icon: Settings, path: "/settings" },
 ];
 
 export function AppSidebar() {
@@ -40,7 +40,7 @@ export function AppSidebar() {
         </div>
         {!collapsed && (
           <span className="text-lg font-bold text-sidebar-primary-foreground tracking-tight">
-            ZapCRM
+            MinRJ
           </span>
         )}
       </div>
@@ -79,10 +79,10 @@ export function AppSidebar() {
             </>
           )}
         </button>
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+        {/* <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
           <LogOut className="w-5 h-5 flex-shrink-0" />
           {!collapsed && <span>Logout</span>}
-        </button>
+        </button> */}
       </div>
     </aside>
   );

@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/AppLayout";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Check, ChevronRight, Contact, Key, MessageSquare, Send, Users } from "lucide-react";
+import { Check, ChevronRight, Contact, Key, Loader, MessageSquare, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SegmentationBuilder, FilterRow } from "@/components/SegmentationBuilder";
@@ -17,12 +18,18 @@ const segments = [
 // const variables = ["{{nome}}", "{{ultima_compra}}", "{{data_nascimento}}", "{{city}}", "{{total_purchases}}"];
 
 const CampaignPage = () => {
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
   const [selectedSegment, setSelectedSegment] = useState("");
   const [message, setMessage] = useState(
     "Olá {{NOME}}! 👋\n\nNotamos que já faz um tempo desde sua última visita. Sentimos sua falta!\n\nVolte e aproveite 15% de desconto na sua próxima compra. Válido somente esta semana!\n\nAté breve! 🎉"
   );
   const [variables, setVariables] = useState([]);
+  const [codeSeller, setCodeSeller] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [campaign, setCampaign] = useState('');
+  const [error, setError] = useState('');
   const [filters, setFilters] = useState<FilterRow[]>([
     // { id: 1, field: "last_purchase", condition: "gt", value: "10" },
   ]);
@@ -39,6 +46,8 @@ const CampaignPage = () => {
 
 
     try {
+      setLoading(true);
+
       const res = await fetch("http://localhost:3333/segments/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,12 +77,15 @@ const CampaignPage = () => {
 
     } catch (error) {
       console.error("Error loading segment data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const sendCampaign = async () => {
     try {
-
+      setError('');
+      setLoading(true);
       const res = await fetch("http://localhost:3333/campaigns/send", {
         method: "POST",
         headers: {
@@ -81,6 +93,7 @@ const CampaignPage = () => {
         },
         body: JSON.stringify({
           message,
+          instance: codeSeller,
           contacts: [
             {
               NOME: "César Tallys",
@@ -93,11 +106,18 @@ const CampaignPage = () => {
       });
 
       const data = await res.json();
-
       console.log(data);
 
+      if (data.error) {
+        setError(data.error);
+      } else {
+        navigate("/history");
+      }
     } catch (error) {
-      console.error(error);
+      console.error('asd', error);
+      setError(error.error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,18 +165,41 @@ const CampaignPage = () => {
         {/* Step 1 */}
 
         {step === 1 && (
-          <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-6">
-            <h3 className="text-sm font-semibold">Faça um segmento de cliente</h3>
-
-            <SegmentationBuilder filters={filters} setFilters={setFilters} />
+          <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-8 max-w-3xl">
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Nome da campanha:</h3>
+              <div className="flex items-center gap-2 bg-muted rounded-xl border border-border px-3 py-2 focus-within:ring-2 focus-within:ring-accent">
+                <Key className="w-4 h-4 text-muted-foreground" />
+                <div className="w-96">
+                  <input
+                    type="text"
+                    disabled={loading}
+                    value={campaign}
+                    onChange={(e) => setCampaign(e.target.value)}
+                    placeholder="Ex: Clientes dos últimos 30 dias com mais de 10 compras"
+                    className="bg-transparent outline-none text-sm w-full placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Faça um segmento de cliente</h3>
+              <SegmentationBuilder filters={filters} setFilters={setFilters} />
+            </div>
 
             <div className="flex justify-end pt-2">
               <Button
                 onClick={loadSegmentData}
-                disabled={(!filters.length || filters[0].condition === "" || filters[0].field === "" || filters[0].value === "")}
+                disabled={(campaign == "" || !filters.length || filters[0].condition === "" || filters[0].field === "" || filters[0].value === "" || loading)}
                 className="gradient-primary text-primary-foreground hover:opacity-90"
               >
-                Próximo <ChevronRight className="w-4 h-4 ml-1" />
+                {loading ? (
+                  <Loader className="w-4 h-4 ml-1" />
+                ) : (
+                  <>
+                    Próximo <ChevronRight className="w-4 h-4 ml-1" />
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -206,7 +249,11 @@ const CampaignPage = () => {
         {step === 2 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-4">
-              <h3 className="text-sm font-semibold">Write your message</h3>
+              <div>
+                <h3 className="text-sm font-semibold">Publico estimado:</h3>
+                <p className="text-sm m-0 p-0 text-gray-500 font-light"><span>{clients.length}</span> clientes</p>
+              </div>
+              <h3 className="text-sm font-semibold">Escreva sua mensagem:</h3>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -237,12 +284,12 @@ const CampaignPage = () => {
 
             {/* WhatsApp Preview */}
             <div className="bg-card rounded-xl shadow-card border border-border p-6">
-              <h3 className="text-sm font-semibold mb-4">Preview</h3>
+              <h3 className="text-sm font-semibold mb-4">Visualização:</h3>
               <div className="bg-[#e5ddd5] rounded-xl p-4 max-w-sm mx-auto">
                 <div className="bg-accent text-accent-foreground rounded-t-xl px-4 py-3 flex items-center gap-3">
                   <MessageSquare className="w-5 h-5" />
                   <div>
-                    <p className="text-sm font-semibold">Cliente</p>
+                    <p className="text-sm font-semibold">Maria</p>
                     <p className="text-xs opacity-80">online</p>
                   </div>
                 </div>
@@ -268,11 +315,11 @@ const CampaignPage = () => {
               </div> */}
               <div className="p-4 bg-muted rounded-xl">
                 <p className="text-xs text-muted-foreground">Estimativa de Contatos</p>
-                <p className="font-semibold mt-1">{segmentData?.count || 0} contatos</p>
+                <p className="font-semibold mt-1">{clients.length || 0} contatos</p>
               </div>
               <div className="p-4 bg-muted rounded-xl">
                 <p className="text-xs text-muted-foreground">Estimativa de Tempo</p>
-                <p className="font-semibold mt-1">~{Math.ceil((segmentData?.count || 0) / 60)} min</p>
+                <p className="font-semibold mt-1">~{Math.ceil((clients?.length || 0) / 30)} min</p>
               </div>
               <div className="p-4 bg-muted rounded-xl">
                 <p className="text-xs text-muted-foreground">Channel</p>
@@ -285,11 +332,36 @@ const CampaignPage = () => {
               <p className="text-xs text-muted-foreground mb-2">Pré-visualização de Mensagem</p>
               <p className="text-sm whitespace-pre-line">{previewMessage}</p>
             </div>
-            <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={() => setStep(2)}>Voltar</Button>
-              <Button onClick={sendCampaign} className="gradient-whatsapp text-accent-foreground hover:opacity-90 flex items-center gap-2">
-                <Send className="w-4 h-4" /> Enviar Campanha
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold">Código do vendedor</h3>
+
+              <div className="flex items-center gap-2 bg-muted rounded-xl border border-border px-3 py-2 focus-within:ring-2 focus-within:ring-accent">
+                <Key className="w-4 h-4 text-muted-foreground" />
+                <div className="w-96">
+                  <input
+                    type="text"
+                    disabled={loading}
+                    value={codeSeller}
+                    onChange={(e) => setCodeSeller(e.target.value)}
+                    placeholder="Digite o código..."
+                    className="bg-transparent outline-none text-sm w-full placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 pt-2 items-center">
+              <Button disabled={loading} variant="outline" onClick={() => setStep(2)}>Voltar</Button>
+              <Button disabled={loading} onClick={sendCampaign} className="gradient-whatsapp w-44 text-accent-foreground hover:opacity-90 flex items-center gap-2">
+                {loading ? (
+                  <Loader className="w-4 h-4" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" /> Enviar Campanha
+                  </>
+                )}
               </Button>
+              {error && (<p className="text-sm text-red-500">{error}! Tente novamente.</p>)}
             </div>
           </div>
         )}
