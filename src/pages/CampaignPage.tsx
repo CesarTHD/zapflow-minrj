@@ -48,7 +48,7 @@ const CampaignPage = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:3333/segments/preview", {
+      const res = await fetch("https://api-minrj-api-minrj.3nrnye.easypanel.host/segments/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filters })

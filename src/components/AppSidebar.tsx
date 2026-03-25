@@ -39,8 +39,8 @@ export function AppSidebar() {
           <MessageSquare className="w-4 h-4 text-accent-foreground" />
         </div>
         {!collapsed && (
-          <span className="text-lg font-bold text-sidebar-primary-foreground tracking-tight">
-            MinRJ
+          <span className="text-lg text-sidebar-primary-foreground tracking-tight font-light">
+            <span className="text-green-500 font-bold">ZapCRM</span> MinRJ
           </span>
         )}
       </div>
