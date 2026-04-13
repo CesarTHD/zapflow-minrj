@@ -24,10 +24,10 @@ const App = () => (
         <Routes>
           {/* <Route path="/" element={<LoginPage />} /> */}
           <Route path="/" element={<CampaignPage />} />
-          {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/segmentation" element={<SegmentationPage />} />
-          {/* <Route path="/campaigns" element={<CampaignPage />} /> */}
+          <Route path="/campaigns" element={<CampaignPage />} />
           <Route path="/automations" element={<AutomationsPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />

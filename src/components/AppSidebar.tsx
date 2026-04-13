@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -16,23 +16,26 @@ import {
 
 const navItems = [
   // { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  // { title: "Contacts", icon: Users, path: "/contacts" },
-  // { title: "Segmentation", icon: Filter, path: "/segmentation" },
+  // { title: "Contatos", icon: Users, path: "/contacts" },
+  { title: "Segmentação", icon: Filter, path: "/segmentation" },
   { title: "Campanhas", icon: Send, path: "/" },
-  // { title: "Automations", icon: Zap, path: "/automations" },
+  // { title: "Automações", icon: Zap, path: "/automations" },
   { title: "Histórico", icon: History, path: "/history" },
-  // { title: "Configurações", icon: Settings, path: "/settings" },
+  { title: "Configurações", icon: Settings, path: "/settings" },
 ];
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
+  useEffect(() => {
+    if(window.innerWidth < 768) setCollapsed(true);
+  }, []);
+
   return (
     <aside
-      className={`flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 ${
-        collapsed ? "w-16" : "w-64"
-      }`}
+      className={`flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 ${collapsed ? "w-16" : "w-64"
+        }`}
     >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border">
         <div className="w-8 h-8 rounded-lg gradient-whatsapp flex items-center justify-center flex-shrink-0">
@@ -52,11 +55,10 @@ export function AppSidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
                   ? "bg-sidebar-accent text-sidebar-primary"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
+                }`}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
               {!collapsed && <span>{item.title}</span>}
