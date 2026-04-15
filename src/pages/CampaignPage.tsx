@@ -1,80 +1,67 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronRight, Contact, Key, Loader, MessageSquare, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { SegmentationBuilder, FilterRow } from "@/components/SegmentationBuilder";
-import { set } from "date-fns";
-
-const segments = [
-  { name: "Inactive 60+ days", count: 347 },
-  { name: "June Birthdays", count: 89 },
-  { name: "VIP Customers", count: 156 },
-  { name: "São Paulo Region", count: 1203 },
-  { name: "Last purchase < 30 days", count: 542 },
-];
-
-// const variables = ["{{nome}}", "{{ultima_compra}}", "{{data_nascimento}}", "{{city}}", "{{total_purchases}}"];
+import { FilterRow } from "@/components/SegmentationBuilder";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getSegments } from "@/functions/getSegments";
 
 const CampaignPage = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
-  const [selectedSegment, setSelectedSegment] = useState("");
+  const [campaignName, setCampaignName] = useState("");
+  const [segments, setSegments] = useState([]);
+  const [selectedSegment, setSelectedSegment] = useState<any>();
   const [message, setMessage] = useState(
-    "Olá {{NOME}}! 👋\n\nNotamos que já faz um tempo desde sua última visita. Sentimos sua falta!\n\nVolte e aproveite 15% de desconto na sua próxima compra. Válido somente esta semana!\n\nAté breve! 🎉"
+    "Olá {{NOME}}! 👋\n\nNotamos que já faz um tempo desde sua última visita. \n\nVolte e aproveite 15% de desconto na sua próxima compra. Válido somente esta semana!\n\nAté breve! 🎉"
   );
   const [variables, setVariables] = useState([]);
   const [codeSeller, setCodeSeller] = useState('');
   const [loading, setLoading] = useState(false);
-  const [campaign, setCampaign] = useState('');
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState<FilterRow[]>([
-    // { id: 1, field: "last_purchase", condition: "gt", value: "10" },
-  ]);
+  const [estimatedCount, setEstimatedCount] = useState(0);
+  const [filters, setFilters] = useState<FilterRow[]>([]);
   const [clients, setClients] = useState([]);
 
-
   const loadSegmentData = async () => {
-    if (!filters.length) {
-      console.log("Nenhum filtro definido");
+    if (!selectedSegment.id) {
+      console.log("Nenhum segmento definido");
       return;
     }
 
-    console.log("Filters:", filters);
-
-
     try {
       setLoading(true);
-
-      const res = await fetch("https://api-minrj-api-minrj.3nrnye.easypanel.host/segments/preview", {
+      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments/preview-by-id`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filters })
+        body: JSON.stringify({ segment_id: selectedSegment.id })
       });
-
+      
       if (!res.ok) {
         throw new Error("Erro ao buscar preview do segmento");
       }
-
+      
+      
       const data = await res.json();
-
+      
       const keys = Object.keys(data.data[0])
-        .filter(col => col !== "CODIGO_CADASTRO_GERAL" && col !== "TEL_CELULAR")
-        .map(col => `{{${col}}}`);
+      .filter(col => col !== "CODIGO_CADASTRO_GERAL" && col !== "TEL_CELULAR")
+      .map(col => `{{${col}}}`);
+      
 
       setVariables((prev) => {
         const unique = new Set([...prev, ...keys]);
         return [...unique];
       });
 
+
       setClients(data.data);
 
-      console.log("Segment data:", data);
-
-      setStep(2); // avançar para próximo step
-
+      setStep(2);
+      
     } catch (error) {
       console.error("Error loading segment data:", error);
     } finally {
@@ -86,7 +73,7 @@ const CampaignPage = () => {
     try {
       setError('');
       setLoading(true);
-      const res = await fetch("http://localhost:3333/campaigns/send", {
+      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/campaigns/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -94,6 +81,7 @@ const CampaignPage = () => {
         body: JSON.stringify({
           message,
           instance: codeSeller,
+          campaign_id: 1,
           contacts: [
             {
               NOME: "César Tallys",
@@ -106,7 +94,6 @@ const CampaignPage = () => {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (data.error) {
         setError(data.error);
@@ -121,13 +108,17 @@ const CampaignPage = () => {
     }
   };
 
-  const segmentData = segments.find((s) => s.name === selectedSegment);
-
   const previewMessage = message
     .replace("{{NOME}}", "Maria")
     .replace("{{ULTIMA_COMPRA}}", "May 15, 2026")
     .replace("{{CIDADE}}", "São Paulo")
     .replace("{{TOTAL_COMPRAS}}", "R$ 2,340");
+
+  useEffect(() => {
+    getSegments(setLoading).then(res => {
+      setSegments(res.data);
+    });
+  }, []);
 
   return (
     <AppLayout>
@@ -165,85 +156,67 @@ const CampaignPage = () => {
         {/* Step 1 */}
 
         {step === 1 && (
-          <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-8 max-w-3xl">
+          <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-4 max-w-3xl">
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Nome da campanha:</h3>
-              <div className="flex items-center gap-2 bg-muted rounded-xl border border-border px-3 py-2 focus-within:ring-2 focus-within:ring-accent">
-                <Key className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 bg-muted rounded-xl border border-border px-3 py-2 focus-within:ring-2 ">
                 <div className="w-96">
                   <input
                     type="text"
                     disabled={loading}
-                    value={campaign}
-                    onChange={(e) => setCampaign(e.target.value)}
-                    placeholder="Ex: Clientes dos últimos 30 dias com mais de 10 compras"
+                    value={campaignName}
+                    onChange={(e) => setCampaignName(e.target.value)}
+                    placeholder="Ex: [CUPOM 10% DESCONTO] [INATIVOS 90 DIAS]"
                     className="bg-transparent outline-none text-sm w-full placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold">Faça um segmento de cliente</h3>
-              <SegmentationBuilder filters={filters} setFilters={setFilters} />
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <Button
-                onClick={loadSegmentData}
-                disabled={(campaign == "" || !filters.length || filters[0].condition === "" || filters[0].field === "" || filters[0].value === "" || loading)}
-                className="gradient-primary text-primary-foreground hover:opacity-90"
-              >
-                {loading ? (
-                  <Loader className="w-4 h-4 ml-1" />
-                ) : (
-                  <>
-                    Próximo <ChevronRight className="w-4 h-4 ml-1" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* {step === 1 && (
-          <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Select a customer segment</h3>
+            <h3 className="text-sm font-semibold pt-4">Selecionar Segmento de Clientes</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {segments.map((seg) => (
-                <button
-                  key={seg.name}
-                  onClick={() => setSelectedSegment(seg.name)}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedSegment === seg.name
+              {loading ?
+                <>
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </>
+                :
+                segments.map((seg) => (
+                  <button
+                    key={seg.name}
+                    onClick={() => setSelectedSegment(seg)}
+                    className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedSegment === seg
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/30"
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium text-sm">{seg.name}</p>
-                      <p className="text-xs text-muted-foreground">{seg.count} contacts</p>
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium text-sm">{seg.name}</p>
+                        <p className="text-xs text-muted-foreground">{seg.count} contacts</p>
+                      </div>
                     </div>
-                  </div>
-                  {selectedSegment === seg.name && (
-                    <div className="w-5 h-5 rounded-full gradient-primary flex items-center justify-center">
-                      <Check className="w-3 h-3 text-primary-foreground" />
-                    </div>
-                  )}
-                </button>
-              ))}
+                    {selectedSegment === seg && (
+                      <div className="w-5 h-5 rounded-full gradient-primary flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary-foreground" />
+                      </div>
+                    )}
+                  </button>
+                ))}
             </div>
             <div className="flex justify-end pt-2">
               <Button
                 disabled={!selectedSegment}
-                onClick={() => setStep(2)}
+                onClick={loadSegmentData}
                 className="gradient-primary text-primary-foreground hover:opacity-90"
               >
-                Next <ChevronRight className="w-4 h-4 ml-1" />
+                Próximo <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
           </div>
-        )} */}
+        )}
 
         {/* Step 2 */}
         {step === 2 && (
