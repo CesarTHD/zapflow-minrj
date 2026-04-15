@@ -2,6 +2,9 @@ import { AppLayout } from "@/components/AppLayout";
 import { Eye, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { getCampaigns } from "@/functions/getCampaigns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const campaigns = [
   { name: "Promoção de aniversário - Junho", segment: "Aniversários de Junho", sent: 342, delivered: 338, responses: 89, date: "11/03/2026", status: "Enviando" },
@@ -18,7 +21,18 @@ const statusColor: Record<string, string> = {
   Falhou: "bg-destructive/10 text-destructive",
 };
 
+
+
 const HistoryPage = () => {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getCampaigns(setLoading).then(res => {
+      setCampaigns(res.data);
+    });
+  }, []);
+
   return (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
@@ -42,34 +56,108 @@ const HistoryPage = () => {
                   <th className="text-left p-4 font-medium text-muted-foreground">Campanha</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Segmento</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Enviadas</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Entregues</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Respostas</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Sucesso</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Erro</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                   <th className="text-left p-4 font-medium text-muted-foreground"></th>
                 </tr>
               </thead>
               <tbody>
-                {campaigns.map((c) => (
-                  <tr key={c.name} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
-                    <td className="p-4 font-medium">{c.name}</td>
-                    <td className="p-4">
-                      <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">{c.segment}</span>
-                    </td>
-                    <td className="p-4">{c.sent.toLocaleString()}</td>
-                    <td className="p-4">{c.delivered.toLocaleString()}</td>
-                    <td className="p-4">{c.responses}</td>
-                    <td className="p-4 text-muted-foreground">{c.date}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
-                    </td>
-                    <td className="p-4">
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {loading ?
+                  <>
+                    <tr>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                      <td className="p-2">
+                        <Skeleton className="h-8 w-full" />
+                      </td>
+                    </tr>
+                  </>
+                  : campaigns.map((c) => (
+                    <tr key={c.name} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
+                      <td className="p-4 font-medium">{c.name}</td>
+                      <td className="p-4">
+                        <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">{c.segment}</span>
+                      </td>
+                      <td className="p-4">{c.sent_count}</td>
+                    <td className="p-4">{c.success_count}</td>
+                    <td className="p-4">{c.error_count}</td>
+                      <td className="p-4 text-muted-foreground">
+                        {new Date(c.created_at).toLocaleString("pt-BR")}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                      </td>
+                      <td className="p-4">
+                        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
