@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from '/favicon.ico';
 import {
   LayoutDashboard,
   Users,
@@ -38,9 +39,10 @@ export function AppSidebar() {
         }`}
     >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border">
-        <div className="w-8 h-8 rounded-lg gradient-whatsapp flex items-center justify-center flex-shrink-0">
-          <MessageSquare className="w-4 h-4 text-accent-foreground" />
-        </div>
+        {/* <div className="w-8 h-8 rounded-lg gradient-whatsapp flex items-center justify-center flex-shrink-0"> */}
+          {/* <MessageSquare className="w-4 h-4 text-accent-foreground" /> */}
+          <img src={logo} className="w-10" />
+        {/* </div> */}
         {!collapsed && (
           <span className="text-lg text-sidebar-primary-foreground tracking-tight font-light">
             <span className="text-green-500 font-bold">ZapCRM</span> MinRJ
