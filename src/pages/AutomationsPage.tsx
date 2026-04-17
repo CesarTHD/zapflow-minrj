@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useState } from "react";
-import { Cake, MessageSquare, Clock, Plus, ArrowRight, Zap, Filter, Send } from "lucide-react";
+import { Cake, Clock, Plus, ArrowRight, Zap, Filter, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AutomationFlow {

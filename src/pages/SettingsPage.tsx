@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Database, MessageSquare, Users, Settings as SettingsIcon, ExternalLink, Check, Globe, Key, Server, RefreshCw } from "lucide-react";
+import { MessageSquare, Settings as SettingsIcon, ExternalLink, Check, Globe, Key, Server, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

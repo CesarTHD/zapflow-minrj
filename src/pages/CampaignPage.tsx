@@ -1,10 +1,9 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Check, ChevronRight, Contact, Key, Loader, MessageSquare, Send, Users } from "lucide-react";
+import { Check, ChevronRight, Key, Loader, MessageSquare, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FilterRow } from "@/components/SegmentationBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSegments } from "@/functions/getSegments";
 
@@ -22,8 +21,6 @@ const CampaignPage = () => {
   const [codeSeller, setCodeSeller] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [estimatedCount, setEstimatedCount] = useState(0);
-  const [filters, setFilters] = useState<FilterRow[]>([]);
   const [clients, setClients] = useState([]);
 
   const loadSegmentData = async () => {
