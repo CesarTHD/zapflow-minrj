@@ -76,9 +76,11 @@ const CampaignPage = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message,
+          company_id: import.meta.env.VITE_COMPANY_ID,
+          name: campaignName,
+          segment_id: selectedSegment.id,
           instance: codeSeller,
-          campaign_id: 1,
+          message,
           contacts: [
             {
               NOME: "César Tallys",
@@ -179,7 +181,7 @@ const CampaignPage = () => {
                   <Skeleton className="h-16 w-full" />
                 </>
                 :
-                segments.map((seg) => (
+                !segments ? <p className="text-red-600">Não foram encotrados segmentos.</p> : segments.map((seg) => (
                   <button
                     key={seg.name}
                     onClick={() => setSelectedSegment(seg)}
@@ -205,7 +207,7 @@ const CampaignPage = () => {
             </div>
             <div className="flex justify-end pt-2">
               <Button
-                disabled={!selectedSegment}
+                disabled={!selectedSegment || !campaignName || loading}
                 onClick={loadSegmentData}
                 className="gradient-primary text-primary-foreground hover:opacity-90"
               >

@@ -135,15 +135,16 @@ const HistoryPage = () => {
                       </td>
                     </tr>
                   </>
-                  : campaigns.map((c) => (
+                  :
+                  !campaigns ? <p className="text-red-600 p-4">Nenhuma campanha encontrada</p> : campaigns.map((c) => (
                     <tr key={c.name} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                       <td className="p-4 font-medium">{c.name}</td>
                       <td className="p-4">
                         <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">{c.segment}</span>
                       </td>
                       <td className="p-4">{c.sent_count}</td>
-                    <td className="p-4">{c.success_count}</td>
-                    <td className="p-4">{c.error_count}</td>
+                      <td className="p-4">{c.success_count}</td>
+                      <td className="p-4">{c.error_count}</td>
                       <td className="p-4 text-muted-foreground">
                         {new Date(c.created_at).toLocaleString("pt-BR")}
                       </td>

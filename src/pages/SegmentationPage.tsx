@@ -1,10 +1,11 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useEffect, useState } from "react";
-import { Loader2Icon, LoaderIcon, Plus, Trash2, Users } from "lucide-react";
+import { Loader2Icon, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SegmentationBuilder } from "@/components/SegmentationBuilder";
 import { getSegments } from "@/functions/getSegments";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FilterRow {
   id: number;
@@ -44,7 +45,7 @@ const SegmentationPage = () => {
         const data = await res.json();
         if (data[0].COUNT) {
           setEstimatedCount(data[0].COUNT)
-        } else{
+        } else {
           setEstimatedCount(0);
         };
       } catch (error) {
@@ -76,9 +77,9 @@ const SegmentationPage = () => {
       const payload = {
         name: segmentName,
         description: "",
-        company_id: "5a5ac64d-0301-49d3-ab7a-5ebd51346e89",
-        created_by: "c51cc764-885e-46ce-b228-6e32ce4a8047",
-        filters // 👈 direto
+        company_id: import.meta.env.VITE_COMPANY_ID,
+        // created_by: "c51cc764-885e-46ce-b228-6e32ce4a8047",
+        filters
       }
 
       const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments`, {
@@ -178,28 +179,36 @@ const SegmentationPage = () => {
         <div className="bg-card rounded-xl shadow-card border border-border p-6 space-y-4 max-w-4xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {
-              segments.map((seg) => (
-                <div
-                  key={seg.name}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left border-border relative`}
-                >
-                  <button onClick={() => deleteSegment(seg.id)} disabled={loading} className="absolute right-5">
-                    <Trash2 className="w-4 h-4 text-red-700 text-muted-foreground hover:text-red-500 transition-colors disabled:text-red-200" />
-                  </button>
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium text-sm">{seg.name}</p>
-                      <p className="text-xs text-muted-foreground">{seg.count} contacts</p>
+              loading ?
+                <>
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </>
+                :
+                !segments ? <p className="text-red-600">Não foram encotrados segmentos.</p> : segments.map((seg) => (
+                  <div
+                    key={seg.name}
+                    className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left border-border relative`}
+                  >
+                    <button onClick={() => deleteSegment(seg.id)} disabled={loading} className="absolute right-5">
+                      <Trash2 className="w-4 h-4 text-red-700 text-muted-foreground hover:text-red-500 transition-colors disabled:text-red-200" />
+                    </button>
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium text-sm">{seg.name}</p>
+                        <p className="text-xs text-muted-foreground">{seg.count} contacts</p>
+                      </div>
                     </div>
-                  </div>
-                  {/* {selectedSegment === seg.name && (
+                    {/* {selectedSegment === seg.name && (
                   <div className="w-5 h-5 rounded-full gradient-primary flex items-center justify-center">
                     <Check className="w-3 h-3 text-primary-foreground" />
                   </div>
                 )} */}
-                </div>
-              ))}
+                  </div>
+                ))}
           </div>
         </div>
       </div>
