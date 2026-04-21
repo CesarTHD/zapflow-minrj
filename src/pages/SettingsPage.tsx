@@ -22,7 +22,7 @@ const SettingsPage = () => {
             </div>
             <div>
               <h3 className="font-semibold">Evolution API</h3>
-              <p className="text-sm text-muted-foreground">Connect your WhatsApp instance via Evolution API</p>
+              <p className="text-sm text-muted-foreground">Conecte sua instância de Whatsapp via Evolution API</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
