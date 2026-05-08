@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { SegmentationBuilder } from "@/components/SegmentationBuilder";
 import { getSegments } from "@/functions/getSegments";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FilterRow {
   id: number;
@@ -21,6 +22,12 @@ const SegmentationPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadSegments, setLoadSegments] = useState(true);
   const [segments, setSegments] = useState([]);
+  const [loja, setLoja] = useState("01");
+
+  const lojaOptions = [
+    { value: "01", label: "01 - Loja Gávea" },
+    { value: "08", label: "08 - Loja Ipanema" },
+  ];
 
   useEffect(() => {
     if (!filters.length) {
@@ -35,7 +42,7 @@ const SegmentationPage = () => {
         const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments/count`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filters })
+          body: JSON.stringify({ filters, loja })
         });
 
         if (!res.ok) {
@@ -79,6 +86,7 @@ const SegmentationPage = () => {
         description: "",
         company_id: import.meta.env.VITE_COMPANY_ID,
         // created_by: "c51cc764-885e-46ce-b228-6e32ce4a8047",
+        loja,
         filters
       }
 
@@ -153,6 +161,29 @@ const SegmentationPage = () => {
           <div className="space-y-2">
             <label className="text-sm font-medium">Nome do Segmento</label>
             <Input value={segmentName} onChange={(e) => setSegmentData(e.target.value)} placeholder="ex.: Clientes inativos 60+ dias" className="max-w-md" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Loja</label>
+
+            <Select
+              value={loja}
+              onValueChange={(v) => setLoja(v)}
+            >
+              <SelectTrigger className="w-64">
+                <SelectValue>
+                  {lojaOptions.find((l) => l.value === loja)?.label}
+                </SelectValue>
+              </SelectTrigger>
+
+              <SelectContent>
+                {lojaOptions.map((l) => (
+                  <SelectItem key={l.value} value={l.value}>
+                    {l.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="pt-4">

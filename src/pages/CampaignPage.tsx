@@ -109,9 +109,11 @@ const CampaignPage = () => {
 
   const previewMessage = message
     .replace("{{NOME}}", "Maria")
-    .replace("{{ULTIMA_COMPRA}}", "May 15, 2026")
+    .replace("{{ULTIMA_COMPRA}}", "15 de Abril, 2026")
     .replace("{{CIDADE}}", "São Paulo")
-    .replace("{{TOTAL_COMPRAS}}", "R$ 2,340");
+    .replace("{{TOTAL_COMPRAS}}", "3")
+    .replace("{{TOTAL_PECAS}}", "5")
+    .replace("{{VALOR_COMPRAS}}", "R$ 630,10");
 
   useEffect(() => {
     getSegments(setLoading).then(res => {
@@ -194,7 +196,9 @@ const CampaignPage = () => {
                       <Users className="w-5 h-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium text-sm">{seg.name}</p>
-                        <p className="text-xs text-muted-foreground">{seg.count} contacts</p>
+                        <p className="text-xs text-muted-foreground">
+                          {seg.count} contatos • Loja {seg.loja}
+                        </p>
                       </div>
                     </div>
                     {selectedSegment === seg && (

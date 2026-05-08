@@ -5,19 +5,10 @@ import { useEffect, useState } from "react";
 import { getCampaigns } from "@/functions/getCampaigns";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const campaigns = [
-  { name: "Promoção de aniversário - Junho", segment: "Aniversários de Junho", sent: 342, delivered: 338, responses: 89, date: "11/03/2026", status: "Enviando" },
-  { name: "Recuperar Inativos", segment: "Inativo 60+ dias", sent: 1205, delivered: 1180, responses: 245, date: "07/02/2026", status: "Completa" },
-  { name: "Nova Coleção", segment: "Todos os Usuários", sent: 4200, delivered: 4100, responses: 890, date: "13/01/2026", status: "Completa" },
-  { name: "Especial Dia das Mães", segment: "Clientes Mulheres", sent: 1890, delivered: 1850, responses: 420, date: "01/12/2025", status: "Completa" },
-  { name: "Fim de semana de promoção relâmpago", segment: "Clientes VIPs", sent: 156, delivered: 155, responses: 78, date: "06/09/2025", status: "Falhou" },
-  { name: "Cupom", segment: "Total > R$1000", sent: 890, delivered: 875, responses: 312, date: "27/07/2025", status: "Completa" },
-];
-
 const statusColor: Record<string, string> = {
-  Completa: "bg-accent/10 text-accent",
-  Enviando: "bg-primary/10 text-primary",
-  Falhou: "bg-destructive/10 text-destructive",
+  sent: "bg-accent/10 text-accent",
+  pending: "bg-primary/10 text-primary",
+  error: "bg-destructive/10 text-destructive",
 };
 
 
