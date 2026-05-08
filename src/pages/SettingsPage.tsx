@@ -47,20 +47,20 @@ const SettingsPage = () => {
             <div className="flex items-center gap-3">
               <Server className="w-4 h-4 text-muted-foreground" />
               <div>
-                <p className="font-medium text-sm">myinstance</p>
+                <p className="font-medium text-sm">Cesar_4202</p>
                 <p className="text-xs text-muted-foreground">+55 11 91234-5678 · WhatsApp Web</p>
               </div>
             </div>
             <span className="flex items-center gap-1 text-sm text-accent">
-              <Check className="w-4 h-4" /> Connected
+              <Check className="w-4 h-4" /> Conectado
             </span>
           </div>
           <div className="flex items-center gap-3">
             <Button className="gradient-primary text-primary-foreground hover:opacity-90 flex items-center gap-2">
-              <RefreshCw className="w-4 h-4" /> Test Connection
+              <RefreshCw className="w-4 h-4" /> Testar Conexão
             </Button>
             <Button variant="outline" className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4" /> Open Dashboard
+              <ExternalLink className="w-4 h-4" /> Abrir Dashboard
             </Button>
           </div>
         </div>
