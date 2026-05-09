@@ -81,14 +81,14 @@ const CampaignPage = () => {
           segment_id: selectedSegment.id,
           instance: codeSeller,
           message,
-          contacts: [
-            {
-              NOME: "César Tallys",
-              CIDADE: "Curimatá",
-              TEL_CELULAR: "5561998374202"
-            }
-          ]
-          // contacts: clients
+          contacts: clients
+          // contacts: [
+          //   {
+          //     NOME: "César",
+          //     CIDADE: "Rio de Janeiro",
+          //     TEL_CELULAR: "5561998374202"
+          //   }
+          // ]
         })
       });
 
