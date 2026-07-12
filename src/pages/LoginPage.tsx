@@ -1,12 +1,38 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MessageSquare, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await login(username, password);
+      toast({ title: "Login realizado com sucesso!" });
+      navigate("/dashboard");
+    } catch (error) {
+      toast({ 
+        title: "Erro ao fazer login", 
+        description: error instanceof Error ? error.message : "Verifique suas credenciais",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -71,8 +97,15 @@ const LoginPage = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@company.com" />
+                <Label htmlFor="username">Username or Email</Label>
+                <Input 
+                  id="username" 
+                  type="text" 
+                  placeholder="seu_usuario ou teste@app.local"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={loading}
+                />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -81,10 +114,14 @@ const LoginPage = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -93,18 +130,20 @@ const LoginPage = () => {
             </div>
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="rounded border-input" />
+                  <input type="checkbox" className="rounded border-input" disabled={loading} />
                 Remember me
               </label>
               <a href="#" className="text-sm text-primary hover:underline">
                 Forgot password?
               </a>
             </div>
-            <Link to="/dashboard">
-              <Button className="w-full gradient-primary text-primary-foreground hover:opacity-90 mt-2">
-                Sign In
+              <Button 
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full gradient-primary text-primary-foreground hover:opacity-90 mt-2"
+              >
+                {loading ? "Conectando..." : "Sign In"}
               </Button>
-            </Link>
           </div>
 
           <p className="text-center text-sm text-muted-foreground">

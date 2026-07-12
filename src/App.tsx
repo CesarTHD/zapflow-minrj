@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ContactsPage from "./pages/ContactsPage";
@@ -21,18 +24,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+       <AuthProvider>
         <Routes>
-          {/* <Route path="/" element={<LoginPage />} /> */}
-          <Route path="/" element={<CampaignPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/contacts" element={<ContactsPage />} />
-          <Route path="/segmentation" element={<SegmentationPage />} />
-          <Route path="/campaigns" element={<CampaignPage />} />
-          <Route path="/automations" element={<AutomationsPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+           <Route path="/login" element={<LoginPage />} />
+           <Route path="/" element={<Navigate to="/dashboard" />} />
+           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+           <Route path="/contacts" element={<ProtectedRoute><ContactsPage /></ProtectedRoute>} />
+           <Route path="/segmentation" element={<ProtectedRoute><SegmentationPage /></ProtectedRoute>} />
+           <Route path="/campaigns" element={<ProtectedRoute><CampaignPage /></ProtectedRoute>} />
+           <Route path="/automations" element={<ProtectedRoute><AutomationsPage /></ProtectedRoute>} />
+           <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+       </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
