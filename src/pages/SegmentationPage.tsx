@@ -39,7 +39,7 @@ const SegmentationPage = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments/count`, {
+        const res = await fetch(`${import.meta.env.VITE_URL_API}/segments/count`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ filters, loja })
@@ -90,7 +90,7 @@ const SegmentationPage = () => {
         filters
       }
 
-      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments`, {
+      const res = await fetch(`${import.meta.env.VITE_URL_API}/segments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -119,7 +119,7 @@ const SegmentationPage = () => {
   const deleteSegment = async (id) => {
     setLoading(true);
     try {
-      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_URL_API}/segments/${id}`, {
         method: "DELETE",
       });
 

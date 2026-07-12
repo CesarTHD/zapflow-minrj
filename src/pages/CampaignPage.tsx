@@ -31,7 +31,7 @@ const CampaignPage = () => {
 
     try {
       setLoading(true);
-      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/segments/preview-by-id`, {
+      const res = await fetch(`${import.meta.env.VITE_URL_API}/segments/preview-by-id`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ segment_id: selectedSegment.id })
@@ -70,7 +70,7 @@ const CampaignPage = () => {
     try {
       setError('');
       setLoading(true);
-      const res = await fetch(`https://${import.meta.env.VITE_URL_API}/campaigns/send`, {
+      const res = await fetch(`${import.meta.env.VITE_URL_API}/campaigns/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
