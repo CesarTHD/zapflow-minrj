@@ -7,6 +7,9 @@ import { SegmentationBuilder } from "@/components/SegmentationBuilder";
 import { getSegments } from "@/functions/getSegments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getSegmentCount } from "@/functions/getSegmentationCount";
+import { createSegment } from "@/functions/createSegment";
+import { removeSegment } from "@/functions/removeSegment";
 
 interface FilterRow {
   id: number;
@@ -30,116 +33,67 @@ const SegmentationPage = () => {
   ];
 
   useEffect(() => {
-    if (!filters.length) {
-      console.log("Nenhum filtro definido");
-      return;
-    }
+    if (!filters.length) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+    setLoading(true);
 
-        const res = await fetch(`${import.meta.env.VITE_URL_API}/segments/count`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filters, loja })
-        });
-
-        if (!res.ok) {
-          throw new Error("Erro ao buscar preview do segmento");
-        }
-
-        const data = await res.json();
-        if (data[0].COUNT) {
-          setEstimatedCount(data[0].COUNT)
-        } else {
-          setEstimatedCount(0);
-        };
-      } catch (error) {
+    getSegmentCount(filters, loja)
+      .then((data) => {
+        setEstimatedCount(data[0]?.COUNT ?? 0);
+      })
+      .catch((err) => {
+        console.error(err);
         setEstimatedCount(0);
-        console.error("Error loading segment data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
+      })
+      .finally(() => setLoading(false));
   }, [filters]);
 
   const saveFilters = async () => {
+    setLoading(true);
+
+    const payload = {
+      name: segmentName,
+      description: "",
+      company_id: import.meta.env.VITE_COMPANY_ID,
+      // created_by: "c51cc764-885e-46ce-b228-6e32ce4a8047",
+      loja,
+      filters
+    }
+
     try {
-      setLoading(true);
-
-      const groups = [
-        {
-          logical_operator: "AND",
-          filters: filters.map((f) => ({
-            field: f.field,
-            operator: f.condition,
-            value: f.value
-          }))
-        }
-      ];
-
-      const payload = {
-        name: segmentName,
-        description: "",
-        company_id: import.meta.env.VITE_COMPANY_ID,
-        // created_by: "c51cc764-885e-46ce-b228-6e32ce4a8047",
-        loja,
-        filters
-      }
-
-      const res = await fetch(`${import.meta.env.VITE_URL_API}/segments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      await createSegment(payload);
 
       setLoadSegments(true);
-
-      if (!res.ok) {
-        throw new Error("Erro ao salvar segmento");
-      }
-
-      await res.json();
       setFilters([]);
-      setSegmentData('');
+      setSegmentData("");
       setEstimatedCount(0);
-
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const deleteSegment = async (id) => {
     setLoading(true);
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_URL_API}/segments/${id}`, {
-        method: "DELETE",
-      });
+      const res = await removeSegment(id);
 
-      if (res.status == 500) {
-        alert('Não é possível excluir um segmento que já foi vinculado a uma campanha.')
+      if (res.status === 500) {
+        alert("Não é possível excluir um segmento que já foi vinculado a uma campanha.");
+        return;
       }
-
 
       setLoadSegments(true);
-    } catch (error) {
-      if (error.message.contains('violates foreign key')) {
-        alert('Não é possível excluir um segmento que já foi vinculado a uma campanha.')
-      } else {
-        alert('Erro ao deletar segmento.');
-      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao deletar segmento.");
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (!loadSegments) return;
     getSegments(setLoading).then(res => {
