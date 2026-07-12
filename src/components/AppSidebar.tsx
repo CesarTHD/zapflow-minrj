@@ -18,7 +18,7 @@ import {
 const navItems = [
   // { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   // { title: "Contatos", icon: Users, path: "/contacts" },
-  { title: "Campanhas", icon: Send, path: "/" },
+  { title: "Campanhas", icon: Send, path: "/campaigns" },
   { title: "Segmentação", icon: Filter, path: "/segmentation" },
   // { title: "Automações", icon: Zap, path: "/automations" },
   { title: "Histórico", icon: History, path: "/history" },
