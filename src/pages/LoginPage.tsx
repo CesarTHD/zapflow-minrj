@@ -22,7 +22,7 @@ const LoginPage = () => {
     try {
       await login(username, password);
       toast({ title: "Login realizado com sucesso!" });
-      navigate("/dashboard");
+      navigate("/campaigns");
     } catch (error) {
       toast({ 
         title: "Erro ao fazer login", 
