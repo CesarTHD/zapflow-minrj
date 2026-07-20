@@ -81,7 +81,7 @@ const CampaignPage = () => {
           segment_id: selectedSegment.id,
           instance: codeSeller,
           message,
-          contacts: clients
+          // contacts: clients
           // contacts: [
           //   {
           //     NOME: "César",
